@@ -1,6 +1,7 @@
 # Basic ignored files
 .metadata
 bin/
+build/
 tmp/
 *.tmp
 *.bak
@@ -10,6 +11,10 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+
+# Project specific files
+manifest.txt
+MessageBox.jar
 
 # External tool builders
 .externalToolBuilders/

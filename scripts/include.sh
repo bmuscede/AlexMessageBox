@@ -7,8 +7,22 @@ function _printHeader() {
     echo "██╔══██║██║     ██╔══╝   ██╔██╗ ╚════██║    ██║╚██╔╝██║██╔══╝  ╚════██║╚════██║██╔══██║██║   ██║██╔══╝      ██╔══██╗██║   ██║ ██╔██╗ "
     echo "██║  ██║███████╗███████╗██╔╝ ██╗███████║    ██║ ╚═╝ ██║███████╗███████║███████║██║  ██║╚██████╔╝███████╗    ██████╔╝╚██████╔╝██╔╝ ██╗"
     echo "╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚═════╝  ╚═════╝ ╚═╝  ╚═╝"
+    echo "                                             A Personalized Message Box for Alexandra Hamill"
+    echo "                                                    Created By: Bryan Muscedere"
+    echo ""
+}
+
+function _showHelp() {
+    echo "Here's the help."
 }
 
 function _parseArguments() {
-    echo "YO"
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --skip-update)  SKIP_UPDATE=1 ;;
+            --help)         _showHelp; exit 0 ;;
+            *)              echo "Error: Unknown parameter passed: $1"; exit 1 ;;
+        esac
+        shift
+    done
 }
