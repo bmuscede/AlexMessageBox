@@ -37,6 +37,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		setTitle("Alex's Message Box");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/img/love.png")));
+		
 		// Create the settings system.
 		settings = new SettingsBundle( SAVE_LOCATION );
 		

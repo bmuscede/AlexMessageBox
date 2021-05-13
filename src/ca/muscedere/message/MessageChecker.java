@@ -30,13 +30,11 @@ public class MessageChecker {
 	public boolean RunChecker() {
 		if ( isRunning ) return false;
 		
-		// Next, attempt to connect.
-		boolean conn = retreiver.Connect();
-		if ( !conn ) {
-			return false;
-		}
+		// Next, attempt to validate the connection.
+		if ( !retreiver.ValidateConnection() ) return false;
 		
 		// Start the checker thread.
+		isRunning = true;
 		checkerThread = new Thread(){
 			public void run(){
 				mainThread();
@@ -48,6 +46,7 @@ public class MessageChecker {
 	}
 	
 	public void StopChecker() {
+		if (!isRunning) return;
 		isRunning = false;
 		
 		// Wait for it to drain out.
@@ -58,7 +57,7 @@ public class MessageChecker {
 	
 	private void mainThread() {
 		// First, attempt to get the last message ID.
-		if ( lastMessageID == -1 )
+		if ( lastMessageID == 0 )
 		{
 			File f = new File(saveLocation + "/" + ID_NAME);
 			if (f.exists())
@@ -81,12 +80,20 @@ public class MessageChecker {
 		}
 		
 		while (isRunning) {
+			// TODO: Wake up more but only check on a specific interval.
 			try {
 				Thread.sleep(intervalMS);
 			} catch (InterruptedException e) { /* If we wake up early that's OK. */ }
 			
 			// Is the notifier ready for more?
 			if ( !notifier.ReadyForNext() || !isRunning ) continue;
+			
+			// Validate the connection.
+			if ( !retreiver.ValidateConnection() ) {
+				isRunning = false;
+				notifier.NotifyNoNetwork();
+				continue;
+			}
 			
 			// Check if we have a new message.
 			if (retreiver.HasNewMessages(lastMessageID)) {
@@ -98,7 +105,6 @@ public class MessageChecker {
 				String res = retreiver.GetNextMessageResource(lastMessageID);
 				
 				notifier.NotifyMessageDetails(text, res);
-				lastMessageID++;
 			}
 			
 		}
@@ -123,7 +129,7 @@ public class MessageChecker {
 	private Thread checkerThread;
 	private String saveLocation;
 	
-	private int lastMessageID = -1;
+	private int lastMessageID = 0;
 	private boolean isRunning;
 	private long intervalMS;
 }

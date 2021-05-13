@@ -22,6 +22,8 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 public class MessagePanel extends JPanel implements MessageNotifier {
 	private static final long serialVersionUID = 4115950307058869469L;
@@ -37,6 +39,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private JPanel pnlMainDisplay;
 	private JButton btnDismiss;
 	private JButton btnPastMessages;
+	private JLabel lblMessageContents;
 	
 	public MessagePanel() {
 		setBackground(Color.BLACK);
@@ -46,14 +49,30 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		add(pnlController, BorderLayout.SOUTH);
 		
 		btnDismiss = new JButton("Dismiss Current Message");
+		btnDismiss.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// We are now ready again!
+				btnDismiss.setEnabled(false);
+				switchPanel("NoMessages");
+				readyForNext = true;
+			}
+		});
 		btnDismiss.setEnabled(false);
 		pnlController.add(btnDismiss);
 		
 		btnPastMessages = new JButton("View Past Messages");
 		btnPastMessages.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				switchPanel("PastMessages");
-				
+				// Check which panel we're on.
+				if (currentPanel == "PastMessages") {
+					btnPastMessages.setText("View Past Messages");
+					readyForNext = true;
+					switchPanel(lastPanel);
+				} else {
+					btnPastMessages.setText("View Current Messages");
+					readyForNext = false;
+					switchPanel("PastMessages");
+				}				
 			}
 		});
 		pnlController.add(btnPastMessages);
@@ -141,9 +160,39 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		JPanel pnlMessageDisplay = new JPanel();
 		pnlMessageDisplay.setBackground(Color.BLACK);
 		pnlMainDisplay.add(pnlMessageDisplay, "CurrentMessage");
+		SpringLayout sl_pnlMessageDisplay = new SpringLayout();
+		pnlMessageDisplay.setLayout(sl_pnlMessageDisplay);
+		
+		lblMessageContents = new JLabel("");
+		lblMessageContents.setHorizontalAlignment(SwingConstants.CENTER);
+		sl_pnlMessageDisplay.putConstraint(SpringLayout.NORTH, lblMessageContents, 150, SpringLayout.NORTH, pnlMessageDisplay);
+		sl_pnlMessageDisplay.putConstraint(SpringLayout.WEST, lblMessageContents, 0, SpringLayout.WEST, pnlMessageDisplay);
+		sl_pnlMessageDisplay.putConstraint(SpringLayout.SOUTH, lblMessageContents, -150, SpringLayout.SOUTH, pnlMessageDisplay);
+		sl_pnlMessageDisplay.putConstraint(SpringLayout.EAST, lblMessageContents, 0, SpringLayout.EAST, pnlMessageDisplay);
+		lblMessageContents.setForeground(Color.WHITE);
+		lblMessageContents.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 29));
+		pnlMessageDisplay.add(lblMessageContents);
 		
 		JPanel pnlPastMessages = new JPanel();
+		pnlPastMessages.setBackground(Color.BLACK);
 		pnlMainDisplay.add(pnlPastMessages, "PastMessages");
+		pnlPastMessages.setLayout(new BorderLayout(0, 0));
+		
+		JPanel pnlPastTitle = new JPanel();
+		pnlPastTitle.setBackground(Color.BLACK);
+		pnlPastMessages.add(pnlPastTitle, BorderLayout.NORTH);
+		pnlPastTitle.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblPastMessages = new JLabel("Your Past Messages");
+		lblPastMessages.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 50));
+		lblPastMessages.setBackground(Color.BLACK);
+		lblPastMessages.setForeground(Color.WHITE);
+		lblPastMessages.setHorizontalAlignment(SwingConstants.CENTER);
+		pnlPastTitle.add(lblPastMessages, BorderLayout.NORTH);
+		
+		JScrollPane scrPastMessages = new JScrollPane();
+		scrPastMessages.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		pnlPastMessages.add(scrPastMessages, BorderLayout.CENTER);
 		
 		JPanel pnlNoNetworkConnection = new JPanel();
 		pnlNoNetworkConnection.setBackground(Color.BLACK);
@@ -252,13 +301,24 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		currentPanel = panelName;
 	}
 	
+	public void NotifyNoNetwork() {
+		disconnected();
+	}
+	
 	public void NotifyNewMessage() {
-		// On a new message, run the new message routine.
+		readyForNext = false;
 		
+		// On a new message, run the new message routine.
+		System.out.println("NEW MESSAGE");
+		
+		// Finally switch to the new message routine.
+		btnDismiss.setEnabled(true);
 	}
 
 	public void NotifyMessageDetails(String message, String resource) {
 		// Apply the new message.
+		// TODO: Deal with the resource.
+		lblMessageContents.setText(message);
 	}
 
 	public boolean ReadyForNext() {

@@ -22,7 +22,14 @@ public boolean UpdateCredentials(String username, String password)
 	return Connect();
 }
 
-public boolean Connect() {
+public boolean ValidateConnection() {
+	boolean status = Connect();
+	Disconnect();
+	
+	return status;
+}
+
+private boolean Connect() {
 	if ( IsConnected() ) return true;
 	
 	// Try to create a connection.
@@ -34,7 +41,20 @@ public boolean Connect() {
 	
 	return true;
 }
-public boolean IsConnected() {
+
+private boolean Disconnect() {
+	if ( !IsConnected() ) return true;
+	
+	try {
+		m_dbConnection.close();
+	} catch (SQLException e) {
+		return false;
+	}
+	
+	return true;
+}
+
+private boolean IsConnected() {
 	try {
 		if ( m_dbConnection == null || m_dbConnection.isClosed() ) return false;
 	} catch (SQLException e) {
@@ -51,11 +71,7 @@ public boolean HasNewMessages()
 }
 
 public boolean HasNewMessages(int lastMessageID) {
-	if ( !IsConnected() )
-	{
-		boolean conStatus = Connect();
-		if ( !conStatus ) return false;
-	}
+	if ( !Connect() ) return false;
 	
 	// Generate SQL statement to check.
 	int count = 0;
@@ -66,7 +82,7 @@ public boolean HasNewMessages(int lastMessageID) {
 		rs = stmt.executeQuery(COUNT_MESSAGE + lastMessageID);
 		if ( !rs.next() ) return false;
 		
-		count = rs.getInt(0);
+		count = rs.getInt(1);
 	} catch (SQLException e) {
 		return false;
 	} finally {
@@ -74,6 +90,7 @@ public boolean HasNewMessages(int lastMessageID) {
 			if ( rs != null ) rs.close();
 			if ( stmt != null ) stmt.close();
 		} catch (Exception e) {}
+		Disconnect();
 	}
 	
 	// Finally, check the results.
@@ -82,13 +99,8 @@ public boolean HasNewMessages(int lastMessageID) {
 }
 
 public int GetLatestID() {
-	int lastID = -1;
-	
-	if ( !IsConnected() )
-	{
-		boolean conStatus = Connect();
-		if ( !conStatus ) return lastID;
-	}
+	int lastID = 0;
+	if ( !Connect() ) return lastID;
 	
 	Statement stmt = null;
 	ResultSet rs = null;
@@ -106,17 +118,15 @@ public int GetLatestID() {
 			if ( rs != null ) rs.close();
 			if ( stmt != null ) stmt.close();
 		} catch (Exception e) {}
+		Disconnect();
 	}
 	
 	return lastID;
 }
 
+// TODO: Combine these.
 public String GetNextMessageText(int messageID) {
-	if ( !IsConnected() )
-	{
-		boolean conStatus = Connect();
-		if ( !conStatus ) return "";
-	}
+	if ( !Connect() ) return "";
 	
 	Statement stmt = null;
 	ResultSet rs = null;
@@ -135,17 +145,15 @@ public String GetNextMessageText(int messageID) {
 			if ( rs != null ) rs.close();
 			if ( stmt != null ) stmt.close();
 		} catch (Exception e) {}
+		
+		Disconnect();
 	}
 	
 	return message;
 }
 
 public String GetNextMessageResource(int messageID) {
-	if ( !IsConnected() )
-	{
-		boolean conStatus = Connect();
-		if ( !conStatus ) return "";
-	}
+	if ( !Connect() ) return "";
 	
 	Statement stmt = null;
 	ResultSet rs = null;
@@ -164,6 +172,8 @@ public String GetNextMessageResource(int messageID) {
 			if ( rs != null ) rs.close();
 			if ( stmt != null ) stmt.close();
 		} catch (Exception e) {}
+		
+		Disconnect();
 	}
 	
 	return message;
@@ -175,8 +185,8 @@ private String m_webAddress;
 private String m_username;
 private String m_password;
 
-private final String COUNT_MESSAGE = "SELECT COUNT(*) FROM message WHERE message.ID > ";
-private final String TEXT_MESSAGE = "SELECT Text FROM message WHERE message.ID = ";
-private final String RES_MESSAGE = "SELECT Media FROM message WHERE message.ID = ";
-private final String LAST_ID_MESSAGE = "SELECT ID FROM message WHERE ID = (SELECT MAX(ID) FROM message)";
+private final String COUNT_MESSAGE = "SELECT COUNT(*) FROM u644124777_message_box.message WHERE message.ID > ";
+private final String TEXT_MESSAGE = "SELECT Text FROM u644124777_message_box.message WHERE message.ID = ";
+private final String RES_MESSAGE = "SELECT Media FROM u644124777_message_box.message WHERE message.ID = ";
+private final String LAST_ID_MESSAGE = "SELECT ID FROM u644124777_message_box.message WHERE ID = (SELECT MAX(ID) FROM u644124777_message_box.message)";
 }
