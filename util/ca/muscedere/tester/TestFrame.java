@@ -32,6 +32,7 @@ public class TestFrame extends JFrame {
 	private JTextField txtMessagePreview;
 	private JLabel lblResourcePreview;
 	private JLabel lblMessagePreview;
+	private SpringLayout sl_pnlPreview;
 	
 	private static SettingsBundle settings;
 	private static MessageSender messageSender;
@@ -49,7 +50,6 @@ public class TestFrame extends JFrame {
 		
 		// Create the message sender.
 		messageSender = new MessageSender( WEB_ADDRESS, settings.getUsername(), settings.getPassword() );
-		messageSender.Connect();
 		
 		// Last, create the GUI.
 		EventQueue.invokeLater(new Runnable() {
@@ -72,52 +72,52 @@ public class TestFrame extends JFrame {
 		setTitle("Alex's Message Box - Message Tester");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(TestFrame.class.getResource("/img/love.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 557, 380);
+		setBounds(100, 100, 557, 385);
 		pnlMain = new JPanel();
 		pnlMain.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(pnlMain);
 		pnlMain.setLayout(null);
 		
 		JLabel lblMessageText = new JLabel("Message Text:");
-		lblMessageText.setBounds(12, 13, 112, 16);
+		lblMessageText.setBounds(12, 13, 125, 16);
 		pnlMain.add(lblMessageText);
 		
 		txtMessageText = new JTextField();
-		txtMessageText.setBounds(139, 10, 393, 22);
+		txtMessageText.setBounds(149, 10, 383, 22);
 		pnlMain.add(txtMessageText);
 		txtMessageText.setColumns(10);
 		
 		JLabel lblMessageResource = new JLabel("Message Resource:");
-		lblMessageResource.setBounds(12, 42, 112, 16);
+		lblMessageResource.setBounds(12, 42, 125, 16);
 		pnlMain.add(lblMessageResource);
 		
 		txtMessagePreview = new JTextField();
 		txtMessagePreview.setColumns(10);
-		txtMessagePreview.setBounds(139, 39, 393, 22);
+		txtMessagePreview.setBounds(149, 39, 383, 22);
 		pnlMain.add(txtMessagePreview);
 		
 		JPanel pnlPreview = new JPanel();
 		pnlPreview.setBorder(new TitledBorder(null, "Message Preview", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		pnlPreview.setBounds(12, 110, 520, 184);
 		pnlMain.add(pnlPreview);
-		SpringLayout sl_pnlPreview = new SpringLayout();
+		sl_pnlPreview = new SpringLayout();
 		pnlPreview.setLayout(sl_pnlPreview);
 		
 		lblResourcePreview = new JLabel("");
+		sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblResourcePreview, 11, SpringLayout.NORTH, pnlPreview);
 		lblResourcePreview.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_pnlPreview.putConstraint(SpringLayout.WEST, lblResourcePreview, 10, SpringLayout.WEST, pnlPreview);
 		sl_pnlPreview.putConstraint(SpringLayout.EAST, lblResourcePreview, -10, SpringLayout.EAST, pnlPreview);
 		pnlPreview.add(lblResourcePreview);
 		
 		lblMessagePreview = new JLabel("");
-		sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblResourcePreview, -66, SpringLayout.NORTH, lblMessagePreview);
-		sl_pnlPreview.putConstraint(SpringLayout.SOUTH, lblResourcePreview, -20, SpringLayout.NORTH, lblMessagePreview);
+		sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblMessagePreview, -64, SpringLayout.SOUTH, pnlPreview);
+		sl_pnlPreview.putConstraint(SpringLayout.SOUTH, lblResourcePreview, 0, SpringLayout.NORTH, lblMessagePreview);
+		sl_pnlPreview.putConstraint(SpringLayout.WEST, lblMessagePreview, 10, SpringLayout.WEST, pnlPreview);
 		sl_pnlPreview.putConstraint(SpringLayout.EAST, lblMessagePreview, -10, SpringLayout.EAST, pnlPreview);
+		sl_pnlPreview.putConstraint(SpringLayout.SOUTH, lblMessagePreview, -10, SpringLayout.SOUTH, pnlPreview);
 		lblMessagePreview.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 18));
 		lblMessagePreview.setHorizontalAlignment(SwingConstants.CENTER);
-		sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblMessagePreview, -82, SpringLayout.SOUTH, pnlPreview);
-		sl_pnlPreview.putConstraint(SpringLayout.WEST, lblMessagePreview, 10, SpringLayout.WEST, pnlPreview);
-		sl_pnlPreview.putConstraint(SpringLayout.SOUTH, lblMessagePreview, -28, SpringLayout.SOUTH, pnlPreview);
 		pnlPreview.add(lblMessagePreview);
 		
 		JButton btnPreview = new JButton("Preview Message...");
@@ -144,6 +144,9 @@ public class TestFrame extends JFrame {
 								"Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
+					sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblMessagePreview, -64, SpringLayout.SOUTH, pnlPreview);
+				} else {
+					sl_pnlPreview.putConstraint(SpringLayout.NORTH, lblMessagePreview, 10, SpringLayout.NORTH, pnlPreview);
 				}
 				
 				// Next, populate the text where possible.

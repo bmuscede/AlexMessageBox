@@ -6,17 +6,26 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import ca.muscedere.settings.SettingsBundle;
+import javafx.embed.swing.JFXPanel;
+
 import java.awt.Toolkit;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -3974286338889827329L;
 	
+	@SuppressWarnings("unused")
+	private static final JFXPanel fxPanel = new JFXPanel();
+	
+	public static final String SAVE_LOCATION = MainFrame.class.getProtectionDomain().
+			getCodeSource().getLocation().getPath();
+	
+	public static SettingsBundle settings;
 	private JPanel contentPane;
 
-	/**
-	 * Launch the application.
-	 */
+	@SuppressWarnings("restriction")
 	public static void main(String[] args) {
+		com.sun.javafx.application.PlatformImpl.startup(()->{});
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -47,7 +56,4 @@ public class MainFrame extends JFrame {
 		contentPane = new MessagePanel();
 		setContentPane(contentPane);
 	}
-	
-	public static SettingsBundle settings;
-	public static final String SAVE_LOCATION = MainFrame.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 }

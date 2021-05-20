@@ -12,7 +12,7 @@ public class MessageSender {
 		m_password = encryptedPassword;
 	}
 	
-	public boolean Connect() {
+	private boolean Connect() {
 		if ( IsConnected() ) return true;
 		
 		// Try to create a connection.
@@ -25,7 +25,19 @@ public class MessageSender {
 		return true;
 	}
 
-	public boolean IsConnected() {
+	private boolean Disconnect() {
+		if ( !IsConnected() ) return true;
+		
+		try {
+			m_dbConnection.close();
+		} catch (SQLException e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private boolean IsConnected() {
 		try {
 			if ( m_dbConnection == null || m_dbConnection.isClosed() ) return false;
 		} catch (SQLException e) {
@@ -38,7 +50,7 @@ public class MessageSender {
 
 	public boolean WriteNewMessage(String messageText, String resourceURL) {
 		// Check if we're connected.
-		if ( !IsConnected() && !Connect() ) return false;
+		if ( !Connect() ) return false;
 		
 		// Create a statement.
 		Statement stmt = null;
@@ -53,6 +65,7 @@ public class MessageSender {
 			try {
 				if ( stmt != null ) stmt.close();
 			} catch (Exception e) {}
+			Disconnect();
 		}
 		return true;
 	}

@@ -1,35 +1,52 @@
 package ca.muscedere.window;
 
-import javax.swing.JPanel;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import java.awt.Color;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-
-import java.awt.CardLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
+import ca.muscedere.message.MessageBundle;
 import ca.muscedere.message.MessageChecker;
 import ca.muscedere.message.MessageNotifier;
 import ca.muscedere.settings.SettingsDialog;
-
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class MessagePanel extends JPanel implements MessageNotifier {
 	private static final long serialVersionUID = 4115950307058869469L;
 
 	public static MessageChecker messageChecker;
-	private boolean readyForNext = false;
+	private volatile boolean readyForNext = false;
+	private volatile boolean messageLoaded = false;
 	
 	private boolean checkingNetworkStatus = false;
 	private String currentPanel = "NoMessages";
@@ -37,18 +54,59 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private static final long CHECK_TIME = 10000;
 	
 	private JPanel pnlMainDisplay;
+	private JPanel pnlContent;
 	private JButton btnDismiss;
 	private JButton btnPastMessages;
+	private JButton btnSettings;
 	private JLabel lblMessageContents;
+	private JScrollPane scrPastMessages;
 	
 	public MessagePanel() {
+		Dimension size = Toolkit. getDefaultToolkit(). getScreenSize();
+		
 		setBackground(Color.BLACK);
 		setLayout(new BorderLayout(0, 0));
 		
 		JPanel pnlController = new JPanel();
+		pnlController.setBackground(Color.BLACK);
 		add(pnlController, BorderLayout.SOUTH);
+		pnlController.setLayout(new BorderLayout(0, 0));
+		
+		JPanel pnlNorth = new JPanel();
+		pnlNorth.setBackground(Color.BLACK);
+		pnlController.add(pnlNorth, BorderLayout.NORTH);
+		
+		Component northStrut = Box.createVerticalStrut(size.height / 50);
+		pnlNorth.add(northStrut);
+		
+		JPanel pnlEast = new JPanel();
+		pnlEast.setBackground(Color.BLACK);
+		pnlController.add(pnlEast, BorderLayout.EAST);
+		
+		Component eastStrut = Box.createHorizontalStrut(size.width / 15);
+		pnlEast.add(eastStrut);
+		
+		JPanel pnlWest = new JPanel();
+		pnlWest.setBackground(Color.BLACK);
+		pnlController.add(pnlWest, BorderLayout.WEST);
+		
+		Component westStrut = Box.createHorizontalStrut(size.width / 15);
+		pnlWest.add(westStrut);
+		
+		JPanel pnlSouth = new JPanel();
+		pnlSouth.setBackground(Color.BLACK);
+		pnlController.add(pnlSouth, BorderLayout.SOUTH);
+		
+		Component southStrut = Box.createVerticalStrut(size.height / 30);
+		pnlSouth.add(southStrut);
+		
+		JPanel pnlButtons = new RoundedPanel();
+		pnlButtons.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
+		pnlController.add(pnlButtons);
 		
 		btnDismiss = new JButton("Dismiss Current Message");
+		btnDismiss.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 16));
+		pnlButtons.add(btnDismiss);
 		btnDismiss.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// We are now ready again!
@@ -58,26 +116,14 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 			}
 		});
 		btnDismiss.setEnabled(false);
-		pnlController.add(btnDismiss);
 		
 		btnPastMessages = new JButton("View Past Messages");
-		btnPastMessages.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Check which panel we're on.
-				if (currentPanel == "PastMessages") {
-					btnPastMessages.setText("View Past Messages");
-					readyForNext = true;
-					switchPanel(lastPanel);
-				} else {
-					btnPastMessages.setText("View Current Messages");
-					readyForNext = false;
-					switchPanel("PastMessages");
-				}				
-			}
-		});
-		pnlController.add(btnPastMessages);
+		btnPastMessages.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 16));
+		pnlButtons.add(btnPastMessages);
 		
-		JButton btnSettings = new JButton("Settings");
+		btnSettings = new JButton("Settings");
+		btnSettings.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 16));
+		pnlButtons.add(btnSettings);
 		btnSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Open the settings dialog.
@@ -99,7 +145,38 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 				}
 			}
 		});
-		pnlController.add(btnSettings);
+		btnPastMessages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Check which panel we're on.
+				if (currentPanel == "PastMessages") {
+					pnlContent.removeAll();
+					pnlContent.revalidate();
+					
+					btnPastMessages.setText("View Past Messages");
+					readyForNext = true;
+					switchPanel(lastPanel);
+				} else {
+					btnPastMessages.setText("View Current Messages");
+					
+					// Calculate the number of rows to fit the proper layout.
+					int minNumPanels = scrPastMessages.getViewport().getSize().height / PastPanel.MAX_HEIGHT;
+					
+					// Fetch all messages.
+					Vector<MessageBundle> bundles = messageChecker.getAllMessages();
+					pnlContent.setLayout(new GridLayout(
+							(bundles.size() > minNumPanels) ? bundles.size() : minNumPanels, 
+							1, 0, 0));
+					pnlContent.setPreferredSize(new Dimension(0, PastPanel.MAX_HEIGHT * bundles.size()));
+					for ( MessageBundle bundle : bundles ) {
+						JPanel currentPanel = new PastPanel(bundle.getMessageDate(), bundle.getMessage(), bundle.getMessageURL());
+						pnlContent.add(currentPanel);
+					}
+					readyForNext = false;
+					pnlContent.repaint();
+					switchPanel("PastMessages");
+				}				
+			}
+		});
 		
 		pnlMainDisplay = new JPanel();
 		add(pnlMainDisplay, BorderLayout.CENTER);
@@ -112,6 +189,8 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNoMessages.setLayout(sl_pnlNoMessages);
 		
 		JLabel lblIcon = new JLabel("");
+		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblIcon, 81, SpringLayout.NORTH, pnlNoMessages);
+		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblIcon, -242, SpringLayout.SOUTH, pnlNoMessages);
 		lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblIcon, 0, SpringLayout.WEST, pnlNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblIcon, 0, SpringLayout.EAST, pnlNoMessages);
@@ -120,11 +199,9 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNoMessages.add(lblIcon);
 		
 		JLabel lblNewLabel = new JLabel("No new messages!");
-		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblIcon, -110, SpringLayout.NORTH, lblNewLabel);
-		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblIcon, 10, SpringLayout.NORTH, lblNewLabel);
-		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNewLabel, 191, SpringLayout.NORTH, pnlNoMessages);
+		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNewLabel, 217, SpringLayout.NORTH, pnlNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblNewLabel, 0, SpringLayout.WEST, pnlNoMessages);
-		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblNewLabel, -186, SpringLayout.SOUTH, pnlNoMessages);
+		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblNewLabel, -160, SpringLayout.SOUTH, pnlNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblNewLabel, 0, SpringLayout.EAST, pnlNoMessages);
 		lblNewLabel.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 32));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -190,7 +267,10 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblPastMessages.setHorizontalAlignment(SwingConstants.CENTER);
 		pnlPastTitle.add(lblPastMessages, BorderLayout.NORTH);
 		
-		JScrollPane scrPastMessages = new JScrollPane();
+		pnlContent = new JPanel();
+		pnlContent.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		scrPastMessages = new JScrollPane(pnlContent);
 		scrPastMessages.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		pnlPastMessages.add(scrPastMessages, BorderLayout.CENTER);
 		
@@ -228,7 +308,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblNoNetworkSubtitle.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 24));
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblNoNetworkSubtitle, 22, SpringLayout.SOUTH, lblNoNetworkTitle);
 		pnlNoNetworkConnection.add(lblNoNetworkSubtitle);
-		
+
 		// Create the message checker.
 		messageChecker = new MessageChecker( MainFrame.settings.getMessageCheckTime(), 
 				MainFrame.settings.getUsername(), MainFrame.settings.getPassword(), MainFrame.SAVE_LOCATION, this );
@@ -245,6 +325,63 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		Image image = imageIcon.getImage(); // transform it 
 		Image newimg = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_SMOOTH); 
 		return new ImageIcon(newimg);
+	}
+	
+	private static void playSound(String resource, boolean shouldBlock, int playCount) {
+		CountDownLatch latch = new CountDownLatch(1);
+		
+		MediaPlayer mediaPlayer = new MediaPlayer(new Media(resource));
+		mediaPlayer.setOnReady(new Runnable() {
+			@Override
+		    public void run() {
+				double millis = (mediaPlayer.getTotalDuration().toMillis() * playCount) + 3000;
+
+				if ( MainFrame.settings.shouldPlaySound() )
+				{
+					AudioClip media = new AudioClip(resource);
+					media.setCycleCount(playCount);
+					media.play();
+				}
+				
+				try {
+					Thread.sleep((long) millis);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				latch.countDown();
+		}});
+		
+		if (shouldBlock)
+		{
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static void turnOnScreen() {
+		String OS = System.getProperty("os.name");
+		if ( OS.startsWith("Windows")) {
+			// On Windows, jiggle the mouse as a way to turn the screen on.
+			Robot robot;
+			try {
+				robot = new Robot();
+				robot.mouseMove(0,0);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		} else {
+			// Run the xset command.
+			Runtime rt = Runtime.getRuntime();
+			try {
+				rt.exec("xset -display ${DISPLAY} dpms force on");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void disconnected() {
@@ -283,7 +420,11 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private void reconnected() {
 		// Start by re-enabling the buttons.
 		btnPastMessages.setEnabled(true);
-		btnDismiss.setEnabled(true);
+		if (lastPanel.equals("CurrentMessage")) {
+			btnDismiss.setEnabled(true);
+		} else {
+			btnDismiss.setEnabled(false);
+		}
 		
 		// Switch back to the no message panel.
 		switchPanel(lastPanel);
@@ -307,18 +448,66 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	
 	public void NotifyNewMessage() {
 		readyForNext = false;
+		messageLoaded = false;
 		
 		// On a new message, run the new message routine.
-		System.out.println("NEW MESSAGE");
-		
-		// Finally switch to the new message routine.
-		btnDismiss.setEnabled(true);
+		Thread newMessageThread = new Thread(){
+		    public void run(){
+				// Disable the buttons below.
+				btnDismiss.setEnabled(false);
+				btnPastMessages.setEnabled(false);
+				btnSettings.setEnabled(false);
+				
+				// Switch to the new message thread.
+				switchPanel("NewMessages");
+				
+				// Turn on the screen.
+				if ( MainFrame.settings.shouldRunScreen() )
+				{
+					turnOnScreen();
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				// Play the new message sound and block on this.
+				do {
+					playSound(MessagePanel.class.getResource("/sound/message.mp3").toString(), true, 2);
+				} while (!messageLoaded);
+				
+				// Finally switch to the new message routine.
+				btnDismiss.setEnabled(true);
+				btnPastMessages.setEnabled(true);
+				btnSettings.setEnabled(true);
+				
+				// Switch to the new message thread.
+				switchPanel("CurrentMessage");
+		    }
+		  };
+		newMessageThread.start();
 	}
 
 	public void NotifyMessageDetails(String message, String resource) {
 		// Apply the new message.
-		// TODO: Deal with the resource.
 		lblMessageContents.setText(message);
+		if (!resource.isEmpty())
+		{
+			Image image = null;
+			try {
+			    URL url = new URL(resource.trim());
+			    image = ImageIO.read(url);
+			    image = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_SMOOTH);
+			    
+			    //lblResourcePreview.setIcon(new ImageIcon(image));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Finally, the message is ready.
+		messageLoaded = true;
 	}
 
 	public boolean ReadyForNext() {

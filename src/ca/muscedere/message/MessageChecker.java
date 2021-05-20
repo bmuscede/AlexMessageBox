@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Vector;
 
 public class MessageChecker {
 	public static final String WEB_ADDRESS = "sql174.main-hosting.eu";
@@ -53,6 +54,10 @@ public class MessageChecker {
 		try {
 			checkerThread.join();
 		} catch (InterruptedException e) { }
+	}
+	
+	public Vector<MessageBundle> getAllMessages() {
+		return retreiver.getAllMessages(lastMessageID);
 	}
 	
 	private void mainThread() {
