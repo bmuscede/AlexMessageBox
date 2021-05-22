@@ -194,7 +194,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblIcon, 0, SpringLayout.WEST, pnlNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblIcon, 0, SpringLayout.EAST, pnlNoMessages);
-		lblIcon.setIcon(createScaledImageIcon("/img/empty.png"));
+		lblIcon.setIcon(createScaledImageIcon("/img/empty1.png"));
 		lblIcon.setForeground(Color.WHITE);
 		pnlNoMessages.add(lblIcon);
 		
@@ -215,20 +215,20 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNewMessage.setLayout(sl_pnlNewMessage);
 		
 		JLabel lblMessageIcon = new JLabel("");
-		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblMessageIcon, 84, SpringLayout.NORTH, pnlNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.WEST, lblMessageIcon, -440, SpringLayout.EAST, pnlNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.EAST, lblMessageIcon, -320, SpringLayout.EAST, pnlNewMessage);
-		lblMessageIcon.setIcon(createScaledImageIcon("/img/new.gif"));
+		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblMessageIcon, 32, SpringLayout.NORTH, pnlNewMessage);
+		sl_pnlNewMessage.putConstraint(SpringLayout.WEST, lblMessageIcon, 0, SpringLayout.WEST, pnlNewMessage);
+		sl_pnlNewMessage.putConstraint(SpringLayout.EAST, lblMessageIcon, 0, SpringLayout.EAST, pnlNewMessage);
+		lblMessageIcon.setIcon(createScaledImageIcon("/img/new1.gif", 250, 250));
 		lblMessageIcon.setHorizontalAlignment(SwingConstants.CENTER);
 		lblMessageIcon.setForeground(Color.WHITE);
 		pnlNewMessage.add(lblMessageIcon);
 		
 		JLabel lblNewMessage = new JLabel("You've received a new message!");
-		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblMessageIcon, -15, SpringLayout.NORTH, lblNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblNewMessage, 210, SpringLayout.NORTH, pnlNewMessage);
 		sl_pnlNewMessage.putConstraint(SpringLayout.WEST, lblNewMessage, 0, SpringLayout.WEST, pnlNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblNewMessage, 245, SpringLayout.NORTH, pnlNewMessage);
 		sl_pnlNewMessage.putConstraint(SpringLayout.EAST, lblNewMessage, 0, SpringLayout.EAST, pnlNewMessage);
+		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblMessageIcon, -6, SpringLayout.NORTH, lblNewMessage);
+		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblNewMessage, 289, SpringLayout.NORTH, pnlNewMessage);
+		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblNewMessage, -10, SpringLayout.SOUTH, pnlNewMessage);
 		lblNewMessage.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewMessage.setForeground(Color.WHITE);
 		lblNewMessage.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 32));
@@ -283,7 +283,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		JLabel lblIconNoInternet = new JLabel("");
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblIconNoInternet, 57, SpringLayout.NORTH, pnlNoNetworkConnection);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblIconNoInternet, 0, SpringLayout.EAST, pnlNoNetworkConnection);
-		lblIconNoInternet.setIcon(createScaledImageIcon("/img/empty.png"));
+		lblIconNoInternet.setIcon(createScaledImageIcon("/img/empty1.png"));
 		lblIconNoInternet.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIconNoInternet.setForeground(Color.WHITE);
 		pnlNoNetworkConnection.add(lblIconNoInternet);
@@ -321,9 +321,13 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	}
 	
 	private static ImageIcon createScaledImageIcon(String resource) {
+		return createScaledImageIcon(resource, 120, 120);
+	}
+	
+	private static ImageIcon createScaledImageIcon(String resource, int width, int height) {
 		ImageIcon imageIcon = new ImageIcon(MessagePanel.class.getResource(resource));
 		Image image = imageIcon.getImage(); // transform it 
-		Image newimg = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_SMOOTH); 
+		Image newimg = image.getScaledInstance(width, height, java.awt.Image.SCALE_DEFAULT); 
 		return new ImageIcon(newimg);
 	}
 	
@@ -498,7 +502,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 			try {
 			    URL url = new URL(resource.trim());
 			    image = ImageIO.read(url);
-			    image = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_SMOOTH);
+			    image = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_DEFAULT);
 			    
 			    //lblResourcePreview.setIcon(new ImageIcon(image));
 			} catch (Exception e) {
