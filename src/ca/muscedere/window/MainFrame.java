@@ -1,20 +1,15 @@
 package ca.muscedere.window;
 
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import ca.muscedere.settings.SettingsBundle;
-import javafx.embed.swing.JFXPanel;
-
-import java.awt.Toolkit;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -3974286338889827329L;
-	
-	@SuppressWarnings("unused")
-	private static final JFXPanel fxPanel = new JFXPanel();
 	
 	public static final String SAVE_LOCATION = MainFrame.class.getProtectionDomain().
 			getCodeSource().getLocation().getPath();
@@ -22,10 +17,7 @@ public class MainFrame extends JFrame {
 	public static SettingsBundle settings;
 	private JPanel contentPane;
 
-	@SuppressWarnings("restriction")
-	public static void main(String[] args) {
-		com.sun.javafx.application.PlatformImpl.startup(()->{});
-		
+	public static void main(String[] args) {		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {

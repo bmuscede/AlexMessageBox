@@ -8,8 +8,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="res"/>
 	<classpathentry kind="src" path="util"/>
-	<classpathentry kind="lib" path="lib/jfxrt.jar"/>
-	<classpathentry kind="lib" path="lib/jfxswt.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-8.0.24.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Bryan/Workspace/MessageBox/lib/jlayer-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Bryan/Workspace/MessageBox/lib/jlayer-1.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

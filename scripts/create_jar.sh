@@ -1,11 +1,32 @@
 #!/bin/bash
 
 CURRENT_DIR="$(readlink -f $(dirname ${BASH_SOURCE[0]})/..)"
+SCRIPT_DIR="${CURRENT_DIR}/scripts"
+source ${SCRIPT_DIR}/include.sh
+
+echo "Building the current project. Please wait..."
+
+# Fetch all the libraries.
+LIBS=$(ls ${CURRENT_DIR}/lib)
+CLASSPATH="."
+for LIB in ${LIBS}; do
+    _isWindows
+    if [ $? -eq 1 ]; then
+        CLASSPATH="${CLASSPATH};"
+    else
+        CLASSPATH="${CLASSPATH}:"
+    fi
+    CLASSPATH="${CLASSPATH}lib/${LIB}"
+done
+
+# Clean before we build.
+rm ${CURRENT_DIR}/bin/MessageBox.jar &> /dev/null
+rm -r ${CURRENT_DIR}/bin/lib &> /dev/null
+rm -r ${CURRENT_DIR}/build &> /dev/null
 
 # First, get a list of all files and attempt to compile.
-echo "Building the current project. Please wait..."
 FILES=$(find ${CURRENT_DIR} -type f -name "*.java")
-javac -d ${CURRENT_DIR}/build ${FILES} &> /dev/null
+javac -cp "${CLASSPATH}" -d ${CURRENT_DIR}/build ${FILES} &> /dev/null
 
 if [ $? -ne 0 ]; then
     echo "There was a problem building this project."
@@ -40,3 +61,7 @@ fi
 # Last move to the binary directory.
 mkdir -p ${CURRENT_DIR}/bin
 mv ${CURRENT_DIR}/build/MessageBox.jar ${CURRENT_DIR}/bin/MessageBox.jar
+cp -r ${CURRENT_DIR}/lib ${CURRENT_DIR}/bin/lib
+
+# Clean after.
+rm -r build &> /dev/null

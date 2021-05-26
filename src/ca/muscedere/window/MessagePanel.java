@@ -37,9 +37,7 @@ import ca.muscedere.message.MessageBundle;
 import ca.muscedere.message.MessageChecker;
 import ca.muscedere.message.MessageNotifier;
 import ca.muscedere.settings.SettingsDialog;
-import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javazoom.jl.player.Player;
 
 public class MessagePanel extends JPanel implements MessageNotifier {
 	private static final long serialVersionUID = 4115950307058869469L;
@@ -51,7 +49,9 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private boolean checkingNetworkStatus = false;
 	private String currentPanel = "NoMessages";
 	private String lastPanel = "";
+	
 	private static final long CHECK_TIME = 10000;
+	private static final long PLAY_TIME = 5000;
 	
 	private JPanel pnlMainDisplay;
 	private JPanel pnlContent;
@@ -331,30 +331,38 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		return new ImageIcon(newimg);
 	}
 	
-	private static void playSound(String resource, boolean shouldBlock, int playCount) {
+	private static void playSound(String resource, boolean shouldBlock, final int playCount) {
 		CountDownLatch latch = new CountDownLatch(1);
 		
-		MediaPlayer mediaPlayer = new MediaPlayer(new Media(resource));
-		mediaPlayer.setOnReady(new Runnable() {
-			@Override
-		    public void run() {
-				double millis = (mediaPlayer.getTotalDuration().toMillis() * playCount) + 3000;
-
-				if ( MainFrame.settings.shouldPlaySound() )
+		// Create a thread.
+		Thread playThread = new Thread(){
+		    public void run(){
+		    	int curPlayCount = playCount;
+		    	if ( MainFrame.settings.shouldPlaySound() )
 				{
-					AudioClip media = new AudioClip(resource);
-					media.setCycleCount(playCount);
-					media.play();
+		    		try {
+				    	while ( curPlayCount > 0 ) {
+				    		Player playMP3 = new Player(MessagePanel.class.getResourceAsStream(resource));
+				    		playMP3.play();
+				    		curPlayCount--;
+				    	}	
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    		}
 				}
-				
-				try {
-					Thread.sleep((long) millis);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				latch.countDown();
-		}});
+		    	else
+		    	{
+		    		try {
+						Thread.sleep((long) PLAY_TIME);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+		    	}
+		    	
+		    	latch.countDown();
+		    }
+		};
+		playThread.start();
 		
 		if (shouldBlock)
 		{
@@ -478,7 +486,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 				
 				// Play the new message sound and block on this.
 				do {
-					playSound(MessagePanel.class.getResource("/sound/message.mp3").toString(), true, 2);
+					playSound("/sound/message.mp3", true, 2);
 				} while (!messageLoaded);
 				
 				// Finally switch to the new message routine.
