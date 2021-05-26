@@ -4,8 +4,6 @@ CURRENT_DIR="$(readlink -f $(dirname ${BASH_SOURCE[0]})/..)"
 SCRIPT_DIR="${CURRENT_DIR}/scripts"
 source ${SCRIPT_DIR}/include.sh
 
-echo "Building the current project. Please wait..."
-
 # Fetch all the libraries.
 LIBS=$(ls ${CURRENT_DIR}/lib)
 CLASSPATH="."
@@ -20,27 +18,30 @@ for LIB in ${LIBS}; do
 done
 
 # Clean before we build.
+_info "Cleaning current build directory..."
 rm ${CURRENT_DIR}/bin/MessageBox.jar &> /dev/null
 rm -r ${CURRENT_DIR}/bin/lib &> /dev/null
 rm -r ${CURRENT_DIR}/build &> /dev/null
 
 # First, get a list of all files and attempt to compile.
+_info "Compiling Java files..."
 FILES=$(find ${CURRENT_DIR} -type f -name "*.java")
 javac -cp "${CLASSPATH}" -d ${CURRENT_DIR}/build ${FILES} &> /dev/null
 
 if [ $? -ne 0 ]; then
-    echo "There was a problem building this project."
+    _error "Error: There was a problem compiling Java files to Class files."
     exit 1
 fi
 
 # Next, create the Manifest.
-if [ ! -f ${CURRENT_DIR}/manifest.txt ]; then
-    echo "Manifest-Version: 1.0" > ${CURRENT_DIR}/manifest.txt
-    echo "Created-By: Bryan Muscedere" >> ${CURRENT_DIR}/manifest.txt
-    echo "Main-Class: ca.muscedere.window.MainFrame" >> ${CURRENT_DIR}/manifest.txt
-fi
+_info "Generating manifest..."
+rm ${CURRENT_DIR}/manifest.txt
+echo "Manifest-Version: 1.0" > ${CURRENT_DIR}/manifest.txt
+echo "Created-By: Bryan Muscedere" >> ${CURRENT_DIR}/manifest.txt
+echo "Main-Class: ca.muscedere.window.MainFrame" >> ${CURRENT_DIR}/manifest.txt
 
 # Move the resources under the build directory.
+_info "Building JAR file for first run..."
 cp -r ${CURRENT_DIR}/res/img ${CURRENT_DIR}/build/img
 cp -r ${CURRENT_DIR}/res/sound ${CURRENT_DIR}/build/sound
 
@@ -54,7 +55,7 @@ cd ${PAST_DIR}
 
 # Check the result.
 if [ ${STATUS_CODE} -ne 0 ]; then
-    echo "Could not build the JAR file."
+    _error "Error: Could not build the JAR file."
     exit 1
 fi
 

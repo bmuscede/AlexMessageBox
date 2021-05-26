@@ -29,19 +29,48 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Check for program updates.
+UPDATE_STATUS=${NO_UPDATE}
 if [ ${SKIP_UPDATES} -eq 0 ]; then
+    _info "Checking for program updates..."
     bash ${SCRIPT_DIR}/check_for_updates.sh
+    UPDATE_STATUS=${?}
+else
+    _warning "Skipping program update check!"
 fi
+echo ""
 
 # Generate the JAR.
 if [ ${SKIP_BUILD} -eq 0 ]; then
-    bash ${SCRIPT_DIR}/create_jar.sh
-    if [ $? -ne 0 ]; then
-        echo "Error: There was a problem creating the JAR file for this program. Exiting..."
-        exit 1
+    _info "Building the current project..."
+    if [ ${UPDATE_STATUS} -eq ${NO_UPDATE} ]; then
+        _success "Program was not updated. No need to build!"
+    else
+        bash ${SCRIPT_DIR}/create_jar.sh
+        if [ $? -ne 0 ]; then
+            _error "Error: There was a problem creating the JAR file for this program. Exiting..."
+            exit 1
+        fi
     fi
+else
+    _warning "Skipping program build!"
 fi
+echo ""
 
 # Finally start the program.
-echo "Starting program..."
-java -jar ${CURRENT_DIR}/bin/MessageBox.jar
+_info "Starting program..."
+while true; do
+    java -jar ${CURRENT_DIR}/bin/MessageBox.jar
+    while true; do
+        read -p "It appears the message box exited. Do you want to restart it? (Y/N): " yn
+        case $yn in
+            [Yy]* ) EXIT_REQ=0; break;;
+            [Nn]* ) EXIT_REQ=1; break;;
+            * ) _error "Please answer yes or no.";;
+        esac
+    done
+
+    if [ ${EXIT_REQ} -eq 1 ]; then
+        _info "Goodbye! Dropping to shell."
+        exit 0
+    fi
+done

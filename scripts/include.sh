@@ -3,6 +3,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 function _printHeader() {   
@@ -60,13 +61,23 @@ function _isWindows() {
 }
 
 function _info() {
-    echo "${BLUE}${1}${NC}"
+    echo -e "${BLUE}${1}${NC}"
 }
 
 function _success() {
-    echo "${GREEN}${1}${NC}"
+    echo -e "${GREEN}${1}${NC}"
+}
+
+function _warning() {
+    echo -e "${YELLOW}${1}${NC}"
 }
 
 function _error() {
-    echo "${RED}${1}${NC}"
+    echo -e "${RED}${1}${NC}"
+}
+
+function _getLatestRelease() {
+    curl --silent "https://api.github.com/repos/$1/releases/latest" |
+        grep '"tag_name":' |                                           
+        sed -E 's/.*"([^"]+)".*/\1/'                                    
 }

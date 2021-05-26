@@ -1,24 +1,20 @@
 #!/bin/bash
 
-function _getLatestRelease() {
-    curl --silent "https://api.github.com/repos/$1/releases/latest" |
-        grep '"tag_name":' |                                           
-        sed -E 's/.*"([^"]+)".*/\1/'                                    
-}
-
-echo "Checking for program updates..."
+CURRENT_DIR="$(readlink -f $(dirname ${BASH_SOURCE[0]})/..)"
+SCRIPT_DIR="${CURRENT_DIR}/scripts"
+source ${SCRIPT_DIR}/include.sh
 
 # Check if we're connected to a repo.
 git status &> /dev/null
 if [ $? -ne 0 ]; then
-    echo "Error: This program is not connect to a repository. Cannot check for updates..."
+    _error "Error: This program is not connect to a repository. Cannot check for updates..."
     exit 1
 fi
 
 # Next, check what branch we're on.
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "${CURRENT_BRANCH}" == "main" ]; then
-    echo "Warning: The repository is not on an official version. Keeping HEAD updated with \"main\"..."
+    _warning "Warning: The repository is not on an official version. Keeping HEAD updated with \"main\"..."
     git remote update &> /dev/null
 
     UPSTREAM=${1:-'@{u}'}
@@ -27,28 +23,33 @@ if [ "${CURRENT_BRANCH}" == "main" ]; then
     BASE=$(git merge-base @ "$UPSTREAM")
 
     if [ $LOCAL = $REMOTE ]; then
-        echo "No updates found, continuing..."
+        _success "No updates found, continuing..."
     elif [ $LOCAL = $BASE ]; then
-        echo "Updates found! Updating program..."
+        _info "Updates found! Updating program..."
 
         # Start by purging all local changes then we pull..
         git reset --hard &> /dev/null
         git pull &> /dev/null
-        echo "Done! Updates succeeded."
+        _success "Done! Updates succeeded."
+        exit ${UPDATE_SUCCESS}
     else
-        echo "Warning: Unknown update condition detected. Continuing without updating..."
+        _warning "Warning: Unknown update condition detected. Continuing without updating..."
     fi
 else
     git remote update &> /dev/null
     RELEASE_BRANCH=$(_getLatestRelease)
 
     if [ ${RELEASE_BRANCH} != ${CURRENT_BRANCH} ]; then
-        echo "Updates found! Updating the program..."
+        _info "Updates found! Updating the program..."
 
         # Start by purging local changes then we pull...
         git reset --hard &> /dev/null
         git checkout ${RELEASE_BRANCH} &> /dev/null
+        _success "Done! Updates succeeded."
+        exit ${UPDATE_SUCCESS}
     else
-        echo "No updates found, continuing..."
+        _success "No updates found, continuing..."
     fi
 fi
+
+exit ${NO_UPDATE}
