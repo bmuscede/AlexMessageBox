@@ -13,6 +13,10 @@ fi
 
 # Next, check what branch we're on.
 CURRENT_BRANCH=$(git branch --show-current)
+if [ -z ${CURRENT_BRANCH} ]; then
+    CURRENT_BRANCH=$(git describe --tags)
+fi
+
 if [ "${CURRENT_BRANCH}" == "main" ]; then
     _warning "Warning: The repository is not on an official version. Keeping HEAD updated with \"main\"..."
     git remote update &> /dev/null
@@ -37,7 +41,7 @@ if [ "${CURRENT_BRANCH}" == "main" ]; then
     fi
 else
     git remote update &> /dev/null
-    RELEASE_BRANCH=$(_getLatestRelease)
+    RELEASE_BRANCH=$(_getLatestRelease bmuscede/AlexMessageBox)
 
     if [ ${RELEASE_BRANCH} != ${CURRENT_BRANCH} ]; then
         _info "Updates found! Updating the program..."
