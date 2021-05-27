@@ -6,6 +6,9 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+NO_UPDATE=0
+UPDATE_SUCCESS=1
+
 function _printHeader() {   
     echo '
   ___  _           _      ___  ___                                ______           

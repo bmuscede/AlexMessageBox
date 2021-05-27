@@ -42,7 +42,7 @@ echo ""
 # Generate the JAR.
 if [ ${SKIP_BUILD} -eq 0 ]; then
     _info "Building the current project..."
-    if [ ${UPDATE_STATUS} -eq ${NO_UPDATE} ]; then
+    if [ ${UPDATE_STATUS} -eq ${NO_UPDATE} ] && [ -d ${CURRENT_DIR}/bin ]; then
         _success "Program was not updated. No need to build!"
     else
         bash ${SCRIPT_DIR}/create_jar.sh
