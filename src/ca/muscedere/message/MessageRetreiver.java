@@ -37,6 +37,7 @@ public class MessageRetreiver {
 		try {
 			m_dbConnection = DriverManager.getConnection("jdbc:mysql://" + m_webAddress, m_username, m_password);
 		} catch (SQLException e) {
+			e.printStackTrace();
 			return false;
 		}
 		

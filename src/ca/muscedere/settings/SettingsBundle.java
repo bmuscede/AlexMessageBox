@@ -56,6 +56,7 @@ public class SettingsBundle implements Serializable{
 			out.close();
 			settingsOut.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 		

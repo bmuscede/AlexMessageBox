@@ -7,6 +7,7 @@ source ${SCRIPT_DIR}/include.sh
 # Fetch all the libraries.
 LIBS=$(ls ${CURRENT_DIR}/lib)
 CLASSPATH="."
+JAR_CLASSPATH="."
 for LIB in ${LIBS}; do
     _isWindows
     if [ $? -eq 1 ]; then
@@ -15,6 +16,7 @@ for LIB in ${LIBS}; do
         CLASSPATH="${CLASSPATH}:"
     fi
     CLASSPATH="${CLASSPATH}lib/${LIB}"
+    JAR_CLASSPATH="${JAR_CLASSPATH} ./lib/${LIB}"
 done
 
 # Clean before we build.
@@ -39,6 +41,7 @@ rm ${CURRENT_DIR}/manifest.txt
 echo "Manifest-Version: 1.0" > ${CURRENT_DIR}/manifest.txt
 echo "Created-By: Bryan Muscedere" >> ${CURRENT_DIR}/manifest.txt
 echo "Main-Class: ca.muscedere.window.MainFrame" >> ${CURRENT_DIR}/manifest.txt
+echo "Class-Path: ${JAR_CLASSPATH}" >> ${CURRENT_DIR}/manifest.txt
 
 # Move the resources under the build directory.
 _info "Building JAR file for first run..."
