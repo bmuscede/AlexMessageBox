@@ -49,6 +49,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private boolean checkingNetworkStatus = false;
 	private String currentPanel = "NoMessages";
 	private String lastPanel = "";
+	private String messagePanel = "";
 	
 	private static final long CHECK_TIME = 10000;
 	private static final long PLAY_TIME = 5000;
@@ -58,8 +59,11 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private JButton btnDismiss;
 	private JButton btnPastMessages;
 	private JButton btnSettings;
-	private JLabel lblMessageContents;
+	private JLabel lblMessageContentsNC;
+	private JLabel lblMessageContentsC;
+	private JLabel lblMessageImageC;
 	private JScrollPane scrPastMessages;
+	private JLabel lblFunIcon;
 	
 	public MessagePanel() {
 		Dimension size = Toolkit. getDefaultToolkit(). getScreenSize();
@@ -190,7 +194,6 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		
 		JLabel lblIcon = new JLabel("");
 		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblIcon, 81, SpringLayout.NORTH, pnlNoMessages);
-		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblIcon, -242, SpringLayout.SOUTH, pnlNoMessages);
 		lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblIcon, 0, SpringLayout.WEST, pnlNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblIcon, 0, SpringLayout.EAST, pnlNoMessages);
@@ -198,15 +201,23 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblIcon.setForeground(Color.WHITE);
 		pnlNoMessages.add(lblIcon);
 		
-		JLabel lblNewLabel = new JLabel("No new messages!");
-		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNewLabel, 217, SpringLayout.NORTH, pnlNoMessages);
-		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblNewLabel, 0, SpringLayout.WEST, pnlNoMessages);
-		sl_pnlNoMessages.putConstraint(SpringLayout.SOUTH, lblNewLabel, -160, SpringLayout.SOUTH, pnlNoMessages);
-		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblNewLabel, 0, SpringLayout.EAST, pnlNoMessages);
-		lblNewLabel.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 32));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setForeground(Color.WHITE);
-		pnlNoMessages.add(lblNewLabel);
+		JLabel lblNoMessages = new JLabel("No new messages!");
+		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNoMessages, 24, SpringLayout.SOUTH, lblIcon);
+		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblNoMessages, 0, SpringLayout.WEST, lblIcon);
+		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblNoMessages, 0, SpringLayout.EAST, pnlNoMessages);
+		lblNoMessages.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 32));
+		lblNoMessages.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNoMessages.setForeground(Color.WHITE);
+		pnlNoMessages.add(lblNoMessages);
+		
+		JLabel lblNoMessagesSubtitle = new JLabel("...but don't worry because Bryan is stil thinking of you.");
+		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNoMessagesSubtitle, 10, SpringLayout.SOUTH, lblNoMessages);
+		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblNoMessagesSubtitle, 0, SpringLayout.WEST, lblIcon);
+		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblNoMessagesSubtitle, 0, SpringLayout.EAST, lblIcon);
+		lblNoMessagesSubtitle.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNoMessagesSubtitle.setForeground(Color.WHITE);
+		lblNoMessagesSubtitle.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
+		pnlNoMessages.add(lblNoMessagesSubtitle);
 		
 		JPanel pnlNewMessage = new JPanel();
 		pnlNewMessage.setBackground(Color.BLACK);
@@ -223,32 +234,67 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblMessageIcon.setForeground(Color.WHITE);
 		pnlNewMessage.add(lblMessageIcon);
 		
-		JLabel lblNewMessage = new JLabel("You've received a new message!");
+		JLabel lblNewMessage = new JLabel("You received a new message!");
+		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblNewMessage, 289, SpringLayout.NORTH, lblMessageIcon);
 		sl_pnlNewMessage.putConstraint(SpringLayout.WEST, lblNewMessage, 0, SpringLayout.WEST, pnlNewMessage);
 		sl_pnlNewMessage.putConstraint(SpringLayout.EAST, lblNewMessage, 0, SpringLayout.EAST, pnlNewMessage);
 		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblMessageIcon, -6, SpringLayout.NORTH, lblNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.NORTH, lblNewMessage, 289, SpringLayout.NORTH, pnlNewMessage);
-		sl_pnlNewMessage.putConstraint(SpringLayout.SOUTH, lblNewMessage, -10, SpringLayout.SOUTH, pnlNewMessage);
 		lblNewMessage.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewMessage.setForeground(Color.WHITE);
 		lblNewMessage.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 32));
 		pnlNewMessage.add(lblNewMessage);
 		
-		JPanel pnlMessageDisplay = new JPanel();
-		pnlMessageDisplay.setBackground(Color.BLACK);
-		pnlMainDisplay.add(pnlMessageDisplay, "CurrentMessage");
-		SpringLayout sl_pnlMessageDisplay = new SpringLayout();
-		pnlMessageDisplay.setLayout(sl_pnlMessageDisplay);
+		JPanel pnlMessageDisplayC = new JPanel();
+		pnlMessageDisplayC.setBackground(Color.BLACK);
+		pnlMainDisplay.add(pnlMessageDisplayC, "CurrentMessageContent");
+		SpringLayout sl_pnlMessageDisplayC = new SpringLayout();
+		pnlMessageDisplayC.setLayout(sl_pnlMessageDisplayC);
 		
-		lblMessageContents = new JLabel("");
-		lblMessageContents.setHorizontalAlignment(SwingConstants.CENTER);
-		sl_pnlMessageDisplay.putConstraint(SpringLayout.NORTH, lblMessageContents, 150, SpringLayout.NORTH, pnlMessageDisplay);
-		sl_pnlMessageDisplay.putConstraint(SpringLayout.WEST, lblMessageContents, 0, SpringLayout.WEST, pnlMessageDisplay);
-		sl_pnlMessageDisplay.putConstraint(SpringLayout.SOUTH, lblMessageContents, -150, SpringLayout.SOUTH, pnlMessageDisplay);
-		sl_pnlMessageDisplay.putConstraint(SpringLayout.EAST, lblMessageContents, 0, SpringLayout.EAST, pnlMessageDisplay);
-		lblMessageContents.setForeground(Color.WHITE);
-		lblMessageContents.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 29));
-		pnlMessageDisplay.add(lblMessageContents);
+		lblMessageImageC = new JLabel("");
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.EAST, lblMessageImageC, 0, SpringLayout.EAST, pnlMessageDisplayC);
+		lblMessageImageC.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMessageImageC.setForeground(Color.WHITE);
+		lblMessageImageC.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 29));
+		pnlMessageDisplayC.add(lblMessageImageC);
+		
+		lblMessageContentsC = new JLabel("");
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.NORTH, lblMessageImageC, -181, SpringLayout.NORTH, lblMessageContentsC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.WEST, lblMessageImageC, 0, SpringLayout.WEST, lblMessageContentsC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.SOUTH, lblMessageImageC, -6, SpringLayout.NORTH, lblMessageContentsC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.NORTH, lblMessageContentsC, 220, SpringLayout.NORTH, pnlMessageDisplayC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.WEST, lblMessageContentsC, 0, SpringLayout.WEST, pnlMessageDisplayC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.SOUTH, lblMessageContentsC, -80, SpringLayout.SOUTH, pnlMessageDisplayC);
+		sl_pnlMessageDisplayC.putConstraint(SpringLayout.EAST, lblMessageContentsC, 0, SpringLayout.EAST, pnlMessageDisplayC);
+		lblMessageContentsC.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMessageContentsC.setForeground(Color.WHITE);
+		lblMessageContentsC.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
+		pnlMessageDisplayC.add(lblMessageContentsC);
+		
+		JPanel pnlMessageDisplayNC = new JPanel();
+		pnlMessageDisplayNC.setBackground(Color.BLACK);
+		pnlMainDisplay.add(pnlMessageDisplayNC, "CurrentMessageNoContent");
+		SpringLayout sl_pnlMessageDisplayNC = new SpringLayout();
+		pnlMessageDisplayNC.setLayout(sl_pnlMessageDisplayNC);
+		
+		lblFunIcon = new JLabel("");
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.EAST, lblFunIcon, -860, SpringLayout.EAST, pnlMessageDisplayNC);
+		lblFunIcon.setVerticalAlignment(SwingConstants.TOP);
+		lblFunIcon.setHorizontalAlignment(SwingConstants.CENTER);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.NORTH, lblFunIcon, 10, SpringLayout.NORTH, pnlMessageDisplayNC);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.WEST, lblFunIcon, 10, SpringLayout.WEST, pnlMessageDisplayNC);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.SOUTH, lblFunIcon, -200, SpringLayout.SOUTH, pnlMessageDisplayNC);
+		lblFunIcon.setForeground(Color.WHITE);
+		pnlMessageDisplayNC.add(lblFunIcon);
+		
+		lblMessageContentsNC = new JLabel("");
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.NORTH, lblMessageContentsNC, 87, SpringLayout.NORTH, pnlMessageDisplayNC);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.WEST, lblMessageContentsNC, 0, SpringLayout.WEST, pnlMessageDisplayNC);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.SOUTH, lblMessageContentsNC, -49, SpringLayout.SOUTH, pnlMessageDisplayNC);
+		sl_pnlMessageDisplayNC.putConstraint(SpringLayout.EAST, lblMessageContentsNC, 0, SpringLayout.EAST, pnlMessageDisplayNC);
+		lblMessageContentsNC.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMessageContentsNC.setForeground(Color.WHITE);
+		lblMessageContentsNC.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
+		pnlMessageDisplayNC.add(lblMessageContentsNC);
 		
 		JPanel pnlPastMessages = new JPanel();
 		pnlPastMessages.setBackground(Color.BLACK);
@@ -281,7 +327,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNoNetworkConnection.setLayout(sl_pnlNoNetworkConnection);
 		
 		JLabel lblIconNoInternet = new JLabel("");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblIconNoInternet, 30, SpringLayout.NORTH, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblIconNoInternet, 60, SpringLayout.NORTH, pnlNoNetworkConnection);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblIconNoInternet, 0, SpringLayout.WEST, pnlNoNetworkConnection);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblIconNoInternet, 0, SpringLayout.EAST, pnlNoNetworkConnection);
 		lblIconNoInternet.setIcon(createScaledImageIcon("/img/empty1.png"));
@@ -290,7 +336,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNoNetworkConnection.add(lblIconNoInternet);
 		
 		JLabel lblCouldNotConnect = new JLabel("Could not connect to the message box service!");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblCouldNotConnect, 170, SpringLayout.NORTH, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblCouldNotConnect, 170, SpringLayout.NORTH, lblIconNoInternet);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.SOUTH, lblIconNoInternet, -20, SpringLayout.NORTH, lblCouldNotConnect);
 		lblCouldNotConnect.setHorizontalAlignment(SwingConstants.CENTER);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblCouldNotConnect, 0, SpringLayout.WEST, pnlNoNetworkConnection);
@@ -299,14 +345,14 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblCouldNotConnect.setForeground(Color.WHITE);
 		pnlNoNetworkConnection.add(lblCouldNotConnect);
 		
-		JLabel lblPleaseCheckYour = new JLabel("Please check your internet and credentials...");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblPleaseCheckYour, 10, SpringLayout.SOUTH, lblCouldNotConnect);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblPleaseCheckYour, 0, SpringLayout.WEST, pnlNoNetworkConnection);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblPleaseCheckYour, 0, SpringLayout.EAST, pnlNoNetworkConnection);
-		lblPleaseCheckYour.setHorizontalAlignment(SwingConstants.CENTER);
-		lblPleaseCheckYour.setForeground(Color.WHITE);
-		lblPleaseCheckYour.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
-		pnlNoNetworkConnection.add(lblPleaseCheckYour);
+		JLabel lblCouldNotConnectSub = new JLabel("Please check your connection and credentials...");
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblCouldNotConnectSub, 10, SpringLayout.SOUTH, lblCouldNotConnect);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblCouldNotConnectSub, 0, SpringLayout.WEST, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblCouldNotConnectSub, 0, SpringLayout.EAST, pnlNoNetworkConnection);
+		lblCouldNotConnectSub.setHorizontalAlignment(SwingConstants.CENTER);
+		lblCouldNotConnectSub.setForeground(Color.WHITE);
+		lblCouldNotConnectSub.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
+		pnlNoNetworkConnection.add(lblCouldNotConnectSub);
 
 		// Create the message checker.
 		messageChecker = new MessageChecker( MainFrame.settings.getMessageCheckTime(), 
@@ -431,7 +477,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	private void reconnected() {
 		// Start by re-enabling the buttons.
 		btnPastMessages.setEnabled(true);
-		if (lastPanel.equals("CurrentMessage")) {
+		if (lastPanel.equals("CurrentMessageNoContent") || lastPanel.equals("CurrentMessageContent")) {
 			btnDismiss.setEnabled(true);
 		} else {
 			btnDismiss.setEnabled(false);
@@ -494,24 +540,36 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 				btnSettings.setEnabled(true);
 				
 				// Switch to the new message thread.
-				switchPanel("CurrentMessage");
+				switchPanel(messagePanel);
 		    }
 		  };
 		newMessageThread.start();
 	}
 
 	public void NotifyMessageDetails(String message, String resource) {
-		// Apply the new message.
-		lblMessageContents.setText(message);
-		if (!resource.isEmpty())
-		{
+		if (resource.isEmpty()) {
+			messagePanel = "CurrentMessageNoContent";
+			lblMessageContentsNC.setText("<html><center>" + message + "</center></html>");
+			
+			// Pick a random number.
+			String image = "deco";
+			if(Math.random() < 0.5) {
+				image += "1.gif";
+			} else {
+				image += "2.gif";
+			}
+			lblFunIcon.setIcon(createScaledImageIcon("/img/" + image));
+		} else {
+			messagePanel = "CurrentMessageContent";
+			lblMessageContentsC.setText("<html><center>" + message + "</center></html>");
+			
 			Image image = null;
 			try {
 			    URL url = new URL(resource.trim());
 			    image = ImageIO.read(url);
-			    image = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_DEFAULT);
+			    image = image.getScaledInstance(175, 175,  java.awt.Image.SCALE_DEFAULT);
 			    
-			    //lblResourcePreview.setIcon(new ImageIcon(image));
+			    lblMessageImageC.setIcon(new ImageIcon(image));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
