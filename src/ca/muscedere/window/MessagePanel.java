@@ -210,7 +210,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		lblNoMessages.setForeground(Color.WHITE);
 		pnlNoMessages.add(lblNoMessages);
 		
-		JLabel lblNoMessagesSubtitle = new JLabel("...but don't worry because Bryan is stil thinking of you.");
+		JLabel lblNoMessagesSubtitle = new JLabel("...but don't worry because Bryan is still thinking of you.");
 		sl_pnlNoMessages.putConstraint(SpringLayout.NORTH, lblNoMessagesSubtitle, 10, SpringLayout.SOUTH, lblNoMessages);
 		sl_pnlNoMessages.putConstraint(SpringLayout.WEST, lblNoMessagesSubtitle, 0, SpringLayout.WEST, lblIcon);
 		sl_pnlNoMessages.putConstraint(SpringLayout.EAST, lblNoMessagesSubtitle, 0, SpringLayout.EAST, lblIcon);
@@ -547,7 +547,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	}
 
 	public void NotifyMessageDetails(String message, String resource) {
-		if (resource.isEmpty()) {
+		if (!resource || resource.isEmpty()) {
 			messagePanel = "CurrentMessageNoContent";
 			lblMessageContentsNC.setText("<html><center>" + message + "</center></html>");
 			
