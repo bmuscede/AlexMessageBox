@@ -547,7 +547,7 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 	}
 
 	public void NotifyMessageDetails(String message, String resource) {
-		if (!resource || resource.isEmpty()) {
+		if (resource == null || resource.isEmpty()) {
 			messagePanel = "CurrentMessageNoContent";
 			lblMessageContentsNC.setText("<html><center>" + message + "</center></html>");
 			
