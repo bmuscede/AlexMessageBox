@@ -281,33 +281,32 @@ public class MessagePanel extends JPanel implements MessageNotifier {
 		pnlNoNetworkConnection.setLayout(sl_pnlNoNetworkConnection);
 		
 		JLabel lblIconNoInternet = new JLabel("");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblIconNoInternet, 57, SpringLayout.NORTH, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblIconNoInternet, 30, SpringLayout.NORTH, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblIconNoInternet, 0, SpringLayout.WEST, pnlNoNetworkConnection);
 		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblIconNoInternet, 0, SpringLayout.EAST, pnlNoNetworkConnection);
 		lblIconNoInternet.setIcon(createScaledImageIcon("/img/empty1.png"));
 		lblIconNoInternet.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIconNoInternet.setForeground(Color.WHITE);
 		pnlNoNetworkConnection.add(lblIconNoInternet);
 		
-		JLabel lblNoNetworkTitle = new JLabel("Could not connect to the message box service!");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblIconNoInternet, 0, SpringLayout.WEST, lblNoNetworkTitle);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.SOUTH, lblIconNoInternet, -6, SpringLayout.NORTH, lblNoNetworkTitle);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.SOUTH, lblNoNetworkTitle, -222, SpringLayout.SOUTH, pnlNoNetworkConnection);
-		lblNoNetworkTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblNoNetworkTitle, 183, SpringLayout.NORTH, pnlNoNetworkConnection);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblNoNetworkTitle, 0, SpringLayout.WEST, pnlNoNetworkConnection);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblNoNetworkTitle, 0, SpringLayout.EAST, pnlNoNetworkConnection);
-		lblNoNetworkTitle.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 34));
-		lblNoNetworkTitle.setForeground(Color.WHITE);
-		pnlNoNetworkConnection.add(lblNoNetworkTitle);
+		JLabel lblCouldNotConnect = new JLabel("Could not connect to the message box service!");
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblCouldNotConnect, 170, SpringLayout.NORTH, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.SOUTH, lblIconNoInternet, -20, SpringLayout.NORTH, lblCouldNotConnect);
+		lblCouldNotConnect.setHorizontalAlignment(SwingConstants.CENTER);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblCouldNotConnect, 0, SpringLayout.WEST, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblCouldNotConnect, 0, SpringLayout.EAST, pnlNoNetworkConnection);
+		lblCouldNotConnect.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 30));
+		lblCouldNotConnect.setForeground(Color.WHITE);
+		pnlNoNetworkConnection.add(lblCouldNotConnect);
 		
-		JLabel lblNoNetworkSubtitle = new JLabel("Check your internet connection and credentials...");
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblNoNetworkSubtitle, 0, SpringLayout.WEST, pnlNoNetworkConnection);
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblNoNetworkSubtitle, 0, SpringLayout.EAST, pnlNoNetworkConnection);
-		lblNoNetworkSubtitle.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNoNetworkSubtitle.setForeground(Color.WHITE);
-		lblNoNetworkSubtitle.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.ITALIC, 24));
-		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblNoNetworkSubtitle, 22, SpringLayout.SOUTH, lblNoNetworkTitle);
-		pnlNoNetworkConnection.add(lblNoNetworkSubtitle);
+		JLabel lblPleaseCheckYour = new JLabel("Please check your internet and credentials...");
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.NORTH, lblPleaseCheckYour, 10, SpringLayout.SOUTH, lblCouldNotConnect);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.WEST, lblPleaseCheckYour, 0, SpringLayout.WEST, pnlNoNetworkConnection);
+		sl_pnlNoNetworkConnection.putConstraint(SpringLayout.EAST, lblPleaseCheckYour, 0, SpringLayout.EAST, pnlNoNetworkConnection);
+		lblPleaseCheckYour.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPleaseCheckYour.setForeground(Color.WHITE);
+		lblPleaseCheckYour.setFont(new Font("Tw Cen MT Condensed Extra Bold", Font.PLAIN, 24));
+		pnlNoNetworkConnection.add(lblPleaseCheckYour);
 
 		// Create the message checker.
 		messageChecker = new MessageChecker( MainFrame.settings.getMessageCheckTime(), 
