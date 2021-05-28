@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Next, check what branch we're on.
-CURRENT_BRANCH=$(git branch --show-current)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ -z ${CURRENT_BRANCH} ]; then
     CURRENT_BRANCH=$(git describe --tags)
 fi
